@@ -94,7 +94,6 @@ steps:
     settings:
       dockerfile: Dockerfile
       context: .
-      platform: linux/amd64,linux/arm64
     when:
       event:
         exclude:
