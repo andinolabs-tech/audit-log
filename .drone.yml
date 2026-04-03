@@ -1,0 +1,103 @@
+# Drone CI — mirrors .github/workflows/ci-docker.yml
+#
+# Required secret (Drone repository settings):
+#   ghcr_token — GitHub PAT with write:packages (or GITHUB_TOKEN–equivalent) for GHCR push
+#
+# Notes:
+# - Postgres is reachable at hostname `postgres` (same as GHA service → localhost).
+# - GITHUB_ACTIONS=true matches justfile so functional tests skip docker compose (DB is the Drone service).
+# - Publish runs only on push/tag, not on pull_request (same as GHA `if: github.event_name != 'pull_request'`).
+# - Non–main-branch pushes exit publish early (GHA only runs on push to main + tags + PRs to main).
+# - Privileged steps (Docker-in-Docker) require the repo to be trusted in Drone server settings.
+
+kind: pipeline
+type: docker
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+services:
+  - name: postgres
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: audit
+      POSTGRES_PASSWORD: audit
+      POSTGRES_DB: auditlog
+
+  - name: docker
+    image: docker:24-dind
+    privileged: true
+    command:
+      - "--tls=false"
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+
+steps:
+  - name: test
+    image: golang:1.26-bookworm
+    environment:
+      AUDIT_LOG_DB_DSN: postgres://audit:audit@postgres:5432/auditlog?sslmode=disable
+      AUDIT_LOG_DB_ADMIN_DSN: postgres://audit:audit@postgres:5432/auditlog?sslmode=disable
+      AUDIT_LOG_OTEL_ENABLED: "false"
+      GITHUB_ACTIONS: "true"
+    commands:
+      - apt-get update && apt-get install -y netcat-openbsd curl
+      - curl -sSfL "https://github.com/casey/just/releases/download/1.40.0/just-1.40.0-x86_64-unknown-linux-gnu.tar.gz" | tar -xz -C /usr/local/bin
+      - chmod +x /usr/local/bin/just
+      - for i in $(seq 1 60); do nc -z postgres 5432 && break; sleep 1; done
+      - just arch
+      - just unit
+      - just functional
+
+  - name: publish
+    image: docker:24-cli
+    privileged: true
+    environment:
+      DOCKER_HOST: tcp://docker:2375
+      GHCR_TOKEN:
+        from_secret: github_token
+    when:
+      event:
+        exclude:
+          - pull_request
+    commands:
+      - apk add --no-cache bash
+      - |
+        bash <<'EOS'
+        set -euo pipefail
+        for i in $$(seq 1 60); do docker info >/dev/null 2>&1 && break; sleep 1; done
+        REPO_LC=$$(echo "$${DRONE_REPO}" | tr '[:upper:]' '[:lower:]')
+        IMAGE="ghcr.io/$${REPO_LC}"
+        if [ "$${DRONE_BUILD_EVENT}" = "push" ] && [ "$${DRONE_BRANCH}" != "main" ]; then
+          echo "Skipping image push (push is not to main)."
+          exit 0
+        fi
+        echo "$${GHCR_TOKEN}" | docker login ghcr.io -u "$${DRONE_REPO_OWNER}" --password-stdin
+        SHORT_SHA=$$(echo "$${DRONE_COMMIT_SHA}" | cut -c1-7)
+        TAGS=()
+        if [ "$${DRONE_BUILD_EVENT}" = "push" ] && [ "$${DRONE_BRANCH}" = "main" ]; then
+          TAGS+=(-t "$${IMAGE}:latest")
+        fi
+        if [ "$${DRONE_BUILD_EVENT}" = "tag" ]; then
+          TAGS+=(-t "$${IMAGE}:$${DRONE_TAG}")
+          if echo "$${DRONE_TAG}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+'; then
+            VER=$$(echo "$${DRONE_TAG}" | sed 's/^v//')
+            MAJ=$$(echo "$${VER}" | cut -d. -f1)
+            MIN=$$(echo "$${VER}" | cut -d. -f2)
+            TAGS+=(-t "$${IMAGE}:$${VER}")
+            TAGS+=(-t "$${IMAGE}:$${MAJ}.$${MIN}")
+            TAGS+=(-t "$${IMAGE}:$${MAJ}")
+          fi
+        fi
+        TAGS+=(-t "$${IMAGE}:sha-$${SHORT_SHA}")
+        docker buildx create --use --name ci-builder 2>/dev/null || docker buildx use ci-builder
+        docker buildx build --platform linux/amd64 --push "$${TAGS[@]}" -f Dockerfile .
+        EOS
+
+trigger:
+  event:
+    - push
+    - pull_request
+    - tag
