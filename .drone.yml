@@ -1,14 +1,15 @@
 # Drone CI — mirrors .github/workflows/ci-docker.yml
 #
 # Required secret (Drone repository settings):
-#   ghcr_token — GitHub PAT with write:packages (or GITHUB_TOKEN–equivalent) for GHCR push
+#   github_token — GitHub PAT with write:packages (or GITHUB_TOKEN–equivalent) for GHCR push
 #
 # Notes:
 # - Postgres is reachable at hostname `postgres` (same as GHA service → localhost).
 # - GITHUB_ACTIONS=true matches justfile so functional tests skip docker compose (DB is the Drone service).
 # - Publish runs only on push/tag, not on pull_request (same as GHA `if: github.event_name != 'pull_request'`).
-# - Non–main-branch pushes exit publish early (GHA only runs on push to main + tags + PRs to main).
-# - Privileged steps (Docker-in-Docker) require the repo to be trusted in Drone server settings.
+# - Publish ref filter matches push to main and tags (non–main branch pushes do not run publish).
+# - Image build/push uses https://plugins.drone.io/plugins/docker (privileged: integrated Docker daemon).
+# - Multi-arch: linux/amd64 + linux/arm64 (see `platform` on the publish step).
 
 kind: pipeline
 type: docker
@@ -25,14 +26,6 @@ services:
       POSTGRES_USER: audit
       POSTGRES_PASSWORD: audit
       POSTGRES_DB: auditlog
-
-  - name: docker
-    image: docker:24-dind
-    privileged: true
-    command:
-      - "--tls=false"
-    environment:
-      DOCKER_TLS_CERTDIR: ""
 
 steps:
   - name: test
@@ -51,50 +44,65 @@ steps:
       - just unit
       - just functional
 
-  - name: publish
-    image: docker:24-cli
-    privileged: true
-    environment:
-      DOCKER_HOST: tcp://docker:2375
-      GHCR_TOKEN:
-        from_secret: github_token
+  - name: publish-prepare
+    image: alpine:3.21
+    depends_on:
+      - test
     when:
       event:
         exclude:
           - pull_request
+      ref:
+        include:
+          - refs/heads/main
+          - refs/tags/**
     commands:
       - apk add --no-cache bash
       - |
-        bash <<'EOS'
         set -euo pipefail
-        for i in $$(seq 1 60); do docker info >/dev/null 2>&1 && break; sleep 1; done
         REPO_LC=$$(echo "$${DRONE_REPO}" | tr '[:upper:]' '[:lower:]')
-        IMAGE="ghcr.io/$${REPO_LC}"
-        if [ "$${DRONE_BUILD_EVENT}" = "push" ] && [ "$${DRONE_BRANCH}" != "main" ]; then
-          echo "Skipping image push (push is not to main)."
-          exit 0
-        fi
-        echo "$${GHCR_TOKEN}" | docker login ghcr.io -u "$${DRONE_REPO_OWNER}" --password-stdin
         SHORT_SHA=$$(echo "$${DRONE_COMMIT_SHA}" | cut -c1-7)
-        TAGS=()
+        TAGS="sha-$${SHORT_SHA}"
         if [ "$${DRONE_BUILD_EVENT}" = "push" ] && [ "$${DRONE_BRANCH}" = "main" ]; then
-          TAGS+=(-t "$${IMAGE}:latest")
+          TAGS="$${TAGS},latest"
         fi
         if [ "$${DRONE_BUILD_EVENT}" = "tag" ]; then
-          TAGS+=(-t "$${IMAGE}:$${DRONE_TAG}")
+          TAGS="$${TAGS},$${DRONE_TAG}"
           if echo "$${DRONE_TAG}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+'; then
             VER=$$(echo "$${DRONE_TAG}" | sed 's/^v//')
             MAJ=$$(echo "$${VER}" | cut -d. -f1)
             MIN=$$(echo "$${VER}" | cut -d. -f2)
-            TAGS+=(-t "$${IMAGE}:$${VER}")
-            TAGS+=(-t "$${IMAGE}:$${MAJ}.$${MIN}")
-            TAGS+=(-t "$${IMAGE}:$${MAJ}")
+            TAGS="$${TAGS},$${VER},$${MAJ}.$${MIN},$${MAJ}"
           fi
         fi
-        TAGS+=(-t "$${IMAGE}:sha-$${SHORT_SHA}")
-        docker buildx create --use --name ci-builder 2>/dev/null || docker buildx use ci-builder
-        docker buildx build --platform linux/amd64 --push "$${TAGS[@]}" -f Dockerfile .
-        EOS
+        {
+          echo "PLUGIN_REPO=ghcr.io/$${REPO_LC}"
+          echo "PLUGIN_REGISTRY=ghcr.io"
+          echo "PLUGIN_USERNAME=$${DRONE_REPO_OWNER}"
+          echo "PLUGIN_TAGS=$${TAGS}"
+        } > .plugin.env
+
+  - name: publish
+    image: plugins/docker
+    privileged: true
+    depends_on:
+      - publish-prepare
+    environment:
+      PLUGIN_ENV_FILE: .plugin.env
+      PLUGIN_PASSWORD:
+        from_secret: github_token
+    settings:
+      dockerfile: Dockerfile
+      context: .
+      platform: linux/amd64,linux/arm64
+    when:
+      event:
+        exclude:
+          - pull_request
+      ref:
+        include:
+          - refs/heads/main
+          - refs/tags/**
 
 trigger:
   event:
