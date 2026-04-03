@@ -25,24 +25,23 @@ A Go service that stores and queries **audit events** over **gRPC**, backed by *
    cp .env.example .env
    ```
 
-2. Start dependencies (Postgres and OTel Collector):
-
-   ```bash
-   docker compose up -d --wait
-   ```
-
-3. Run the server (from repo root):
+2. From the repo root, run:
 
    ```bash
    just run
    ```
 
-   This builds `bin/audit-log`, brings Compose up, then runs the binary. Alternatively:
+   This single command **builds** `bin/audit-log`, **starts** Postgres and the OpenTelemetry Collector (`docker compose up -d --wait`), **runs** the server, and **stops** the Compose stack when you exit (Ctrl+C). Set `AUDIT_LOG_DB_DSN` (and any other vars) in your environment so they match the Compose services—see `.env.example` or `.mise.toml`.
+
+   Without `just`, do the same steps yourself:
 
    ```bash
+   docker compose up -d --wait
    go build -o bin/audit-log ./cmd/server
    ./bin/audit-log
    ```
+
+   When you are done, run `docker compose down` if the stack is still up.
 
 The process listens for gRPC on **`50051`** by default and exposes **pprof** on **`6061`**.
 
