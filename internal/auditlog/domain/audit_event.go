@@ -34,6 +34,7 @@ const (
 type AuditEvent struct {
 	ID            uuid.UUID
 	TenantID      string
+	Namespace     string
 	ActorID       string
 	ActorType     ActorType
 	EntityType    string
@@ -45,7 +46,8 @@ type AuditEvent struct {
 	SessionID     string
 	CorrelationID string
 	TraceID       string
-	Timestamp     time.Time
+	OccurredAt    *time.Time // when the event happened in the source system
+	Timestamp     time.Time  // when the event was received by this service
 	CompensatesID *uuid.UUID
 	Before        map[string]any
 	After         map[string]any

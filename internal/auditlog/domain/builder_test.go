@@ -14,6 +14,7 @@ var _ = Describe("AuditEventBuilder", func() {
 	base := func() *domain.AuditEventBuilder {
 		return domain.NewAuditEventBuilder().
 			WithTenantID("tenant-1").
+			WithNamespace("orders").
 			WithActorID("actor-1").
 			WithActorType(domain.ActorTypeUser).
 			WithEntityType("Order").
@@ -22,6 +23,30 @@ var _ = Describe("AuditEventBuilder", func() {
 			WithOutcome(domain.OutcomeSuccess).
 			WithServiceName("orders-api")
 	}
+
+	DescribeTable("rejects build when mandatory field is missing",
+		func(modify func(*domain.AuditEventBuilder) *domain.AuditEventBuilder, expectedErr error) {
+			b := domain.NewAuditEventBuilder().
+				WithActorID("actor-1").
+				WithActorType(domain.ActorTypeUser).
+				WithAction(domain.ActionCreated).
+				WithOutcome(domain.OutcomeSuccess)
+			_, err := modify(b).Build()
+			Expect(err).To(MatchError(expectedErr))
+		},
+		Entry("missing tenant_id", func(b *domain.AuditEventBuilder) *domain.AuditEventBuilder {
+			return b.WithNamespace("ns").WithEntityType("Order").WithEntityID("ord-1")
+		}, domain.ErrTenantIDRequired),
+		Entry("missing namespace", func(b *domain.AuditEventBuilder) *domain.AuditEventBuilder {
+			return b.WithTenantID("t-1").WithEntityType("Order").WithEntityID("ord-1")
+		}, domain.ErrNamespaceRequired),
+		Entry("missing entity_type", func(b *domain.AuditEventBuilder) *domain.AuditEventBuilder {
+			return b.WithTenantID("t-1").WithNamespace("ns").WithEntityID("ord-1")
+		}, domain.ErrEntityTypeRequired),
+		Entry("missing entity_id", func(b *domain.AuditEventBuilder) *domain.AuditEventBuilder {
+			return b.WithTenantID("t-1").WithNamespace("ns").WithEntityType("Order")
+		}, domain.ErrEntityIDRequired),
+	)
 
 	It("generates UUID version 7 for the event id", func() {
 		event, err := base().Build()
@@ -65,6 +90,24 @@ var _ = Describe("AuditEventBuilder", func() {
 		Expect(event.Action).To(Equal(domain.ActionCompensated))
 		Expect(event.CompensatesID).NotTo(BeNil())
 		Expect(*event.CompensatesID).To(Equal(ref))
+	})
+
+	It("stores OccurredAt when provided, leaving Timestamp as receipt time", func() {
+		occurredAt := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+		before := time.Now().UTC()
+		event, err := base().WithOccurredAt(occurredAt).Build()
+		after := time.Now().UTC()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(event.OccurredAt).NotTo(BeNil())
+		Expect(*event.OccurredAt).To(Equal(occurredAt))
+		Expect(event.Timestamp).To(BeTemporally(">=", before))
+		Expect(event.Timestamp).To(BeTemporally("<=", after))
+	})
+
+	It("leaves OccurredAt nil when not provided", func() {
+		event, err := base().Build()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(event.OccurredAt).To(BeNil())
 	})
 
 	It("stores optional static and dynamic fields", func() {

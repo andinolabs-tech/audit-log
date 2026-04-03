@@ -24,6 +24,14 @@ func (b *AuditEventBuilder) WithTenantID(v string) *AuditEventBuilder {
 	return b
 }
 
+func (b *AuditEventBuilder) WithNamespace(v string) *AuditEventBuilder {
+	b.actions = append(b.actions, func(e *AuditEvent) error {
+		e.Namespace = v
+		return nil
+	})
+	return b
+}
+
 func (b *AuditEventBuilder) WithActorID(v string) *AuditEventBuilder {
 	b.actions = append(b.actions, func(e *AuditEvent) error {
 		e.ActorID = v
@@ -112,6 +120,15 @@ func (b *AuditEventBuilder) WithTraceID(v string) *AuditEventBuilder {
 	return b
 }
 
+func (b *AuditEventBuilder) WithOccurredAt(v time.Time) *AuditEventBuilder {
+	b.actions = append(b.actions, func(e *AuditEvent) error {
+		t := v
+		e.OccurredAt = &t
+		return nil
+	})
+	return b
+}
+
 func (b *AuditEventBuilder) WithCompensatesID(v uuid.UUID) *AuditEventBuilder {
 	b.actions = append(b.actions, func(e *AuditEvent) error {
 		id := v
@@ -167,6 +184,18 @@ func (b *AuditEventBuilder) Build() (*AuditEvent, error) {
 		if err := fn(&e); err != nil {
 			return nil, err
 		}
+	}
+	if e.TenantID == "" {
+		return nil, ErrTenantIDRequired
+	}
+	if e.Namespace == "" {
+		return nil, ErrNamespaceRequired
+	}
+	if e.EntityType == "" {
+		return nil, ErrEntityTypeRequired
+	}
+	if e.EntityID == "" {
+		return nil, ErrEntityIDRequired
 	}
 	if e.Action == ActionCompensated && e.CompensatesID == nil {
 		return nil, ErrCompensatesIDRequired
