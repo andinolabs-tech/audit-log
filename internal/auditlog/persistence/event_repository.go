@@ -219,9 +219,6 @@ func AutoMigrateModel(db *gorm.DB) error {
 // BootstrapSQL runs role and index DDL (admin connection). Idempotent guards are in SQL.
 func BootstrapSQL(db *gorm.DB) error {
 	stmts := []string{
-		// CREATE ROLE IF NOT EXISTS needs PostgreSQL 15+; DO + duplicate_object works on older versions.
-		`DO $$ BEGIN CREATE ROLE audit_log_writer; EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
-		`GRANT INSERT, SELECT ON audit_events TO audit_log_writer`,
 		`REVOKE UPDATE, DELETE ON audit_events FROM PUBLIC`,
 		`CREATE INDEX IF NOT EXISTS idx_audit_events_before_gin ON audit_events USING GIN ((before::jsonb))`,
 		`CREATE INDEX IF NOT EXISTS idx_audit_events_after_gin ON audit_events USING GIN ((after::jsonb))`,
