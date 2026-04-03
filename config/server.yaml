@@ -1,0 +1,9 @@
+# Defaults; override with AUDIT_LOG_* environment variables.
+server_port: 50051
+server_pprof_port: 6061
+otel_enabled: true
+otel_endpoint: localhost:4317
+otel_service_name: audit-log
+otel_environment: development
+otel_sample_rate: 0.1
+general_log_level: info

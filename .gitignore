@@ -1,0 +1,39 @@
+# Build output (see justfile: go build -o bin/audit-log)
+/bin/
+
+# Test & coverage
+*.out
+coverage.out
+coverage.html
+*.coverprofile
+profile.cov
+cpu.prof
+mem.prof
+
+# arch-go (see .dockerignore)
+.arch-go
+
+# Local env (tracked: .env.example)
+.env
+.env.*
+!.env.example
+
+# Go
+vendor/
+
+# IDE / editor
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Delve debugger
+__debug_bin
+__debug_bin*
+
+# Optional: live reload / temp
+tmp/
+air.toml.local

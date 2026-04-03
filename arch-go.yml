@@ -1,0 +1,25 @@
+version: 1
+threshold:
+  compliance: 100
+  coverage: 0
+dependenciesRules:
+  - package: "audit-log/internal/auditlog/grpcapi"
+    shouldNotDependsOn:
+      internal:
+        - "audit-log/internal/auditlog/persistence"
+  - package: "audit-log/internal/auditlog/usecases"
+    shouldNotDependsOn:
+      internal:
+        - "audit-log/internal/auditlog/persistence"
+        - "audit-log/internal/auditlog/grpcapi"
+  - package: "audit-log/internal/auditlog/domain"
+    shouldNotDependsOn:
+      internal:
+        - "audit-log/internal/auditlog/usecases"
+        - "audit-log/internal/auditlog/persistence"
+        - "audit-log/internal/auditlog/grpcapi"
+        - "audit-log/internal/infra"
+  - package: "audit-log/internal/infra"
+    shouldNotDependsOn:
+      internal:
+        - "audit-log/internal/auditlog"

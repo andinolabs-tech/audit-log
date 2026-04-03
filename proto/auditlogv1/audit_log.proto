@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package auditlog.v1;
+
+option go_package = "audit-log/proto/auditlogv1;auditlogv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+service AuditLog {
+  rpc WriteEvent(WriteEventRequest) returns (WriteEventResponse);
+  rpc WriteCompensation(WriteCompensationRequest) returns (WriteCompensationResponse);
+  rpc QueryEvents(QueryEventsRequest) returns (QueryEventsResponse);
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse);
+}
+
+message WriteEventRequest {
+  string tenant_id = 1;
+  string actor_id = 2;
+  string actor_type = 3;
+  string entity_type = 4;
+  string entity_id = 5;
+  string action = 6;
+  string outcome = 7;
+  string service_name = 8;
+  string source_ip = 9;
+  string session_id = 10;
+  string correlation_id = 11;
+  string trace_id = 12;
+  google.protobuf.Struct before = 13;
+  google.protobuf.Struct after = 14;
+  google.protobuf.Struct metadata = 15;
+  string reason = 16;
+  repeated string tags = 17;
+}
+
+message WriteEventResponse {
+  AuditEvent event = 1;
+}
+
+message WriteCompensationRequest {
+  WriteEventRequest base = 1;
+  string compensates_id = 2;
+}
+
+message WriteCompensationResponse {
+  AuditEvent event = 1;
+}
+
+message QueryEventsRequest {
+  optional string tenant_id = 1;
+  optional string actor_id = 2;
+  optional string actor_type = 3;
+  optional string entity_type = 4;
+  optional string entity_id = 5;
+  optional string action = 6;
+  optional string outcome = 7;
+  optional string service_name = 8;
+  optional string source_ip = 9;
+  optional string session_id = 10;
+  optional string correlation_id = 11;
+  optional string trace_id = 12;
+  string page_token = 13;
+  int32 page_size = 14;
+}
+
+message QueryEventsResponse {
+  repeated AuditEvent events = 1;
+  string next_page_token = 2;
+}
+
+message GetEventRequest {
+  string id = 1;
+}
+
+message GetEventResponse {
+  AuditEvent event = 1;
+}
+
+message AuditEvent {
+  string id = 1;
+  string tenant_id = 2;
+  string actor_id = 3;
+  string actor_type = 4;
+  string entity_type = 5;
+  string entity_id = 6;
+  string action = 7;
+  string outcome = 8;
+  string service_name = 9;
+  string source_ip = 10;
+  string session_id = 11;
+  string correlation_id = 12;
+  string trace_id = 13;
+  google.protobuf.Timestamp timestamp = 14;
+  optional string compensates_id = 15;
+  google.protobuf.Struct before = 16;
+  google.protobuf.Struct after = 17;
+  google.protobuf.Value diff = 18;
+  google.protobuf.Struct metadata = 19;
+  string reason = 20;
+  repeated string tags = 21;
+}

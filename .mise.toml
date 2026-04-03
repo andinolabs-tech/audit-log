@@ -1,0 +1,6 @@
+[tools]
+go = "1.26.1"
+
+[env]
+AUDIT_LOG_DB_DSN = "postgres://audit:audit@localhost:5432/auditlog?sslmode=disable"
+AUDIT_LOG_DB_ADMIN_DSN = "postgres://audit:audit@localhost:5432/auditlog?sslmode=disable"
