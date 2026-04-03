@@ -93,7 +93,7 @@ The image exposes ports **50051** (gRPC) and **6061** (pprof). Pass configuratio
 | `just wire` | Regenerate Google Wire DI (`cmd/server/wire`). |
 | `just mock` | Regenerate use case mocks. |
 | `just unit` | Unit tests with race detector and coverage. |
-| `just functional` | Godog/Cucumber functional tests. |
+| `just functional` | Build, `docker compose up --wait`, start `bin/audit-log` in the background, wait until the gRPC port accepts connections, run Godog scenarios against that address, then stop the app and `docker compose down`. Preserves `go test` exit code. Sets `AUDIT_LOG_FUNCTIONAL_GRPC_ADDR` (default `127.0.0.1` + `AUDIT_LOG_SERVER_PORT`). |
 | `just arch` | Run [arch-go](https://github.com/arch-go/arch-go) architecture checks. |
 | `just proto` | Regenerate protobuf Go code. |
 

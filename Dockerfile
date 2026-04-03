@@ -6,8 +6,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /out/audit-log ./cmd/server
 
-FROM alpine:3.21
-RUN apk add --no-cache ca-certificates
-COPY --from=build /out/audit-log /usr/local/bin/audit-log
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /out/audit-log /audit-log
 EXPOSE 50051 6061
-ENTRYPOINT ["/usr/local/bin/audit-log"]
+ENTRYPOINT ["/audit-log"]

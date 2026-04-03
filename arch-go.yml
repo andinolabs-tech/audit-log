@@ -23,3 +23,8 @@ dependenciesRules:
     shouldNotDependsOn:
       internal:
         - "audit-log/internal/auditlog"
+  - package: "audit-log/test/functional"
+    shouldNotDependsOn:
+      internal:
+        - "audit-log.cmd.**"
+        - "audit-log.internal.**"
