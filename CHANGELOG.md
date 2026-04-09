@@ -1,0 +1,35 @@
+## [unreleased]
+
+### 🚀 Features
+
+- First working version
+- Make small docker images available to pull and run
+- Add mandatory fields validations
+- Make AUDIT_LOG_DB_DSN optional in config
+- Add database.OpenInMemory with SQLite :memory:
+- Fall back to SQLite in-memory DB when AUDIT_LOG_DB_DSN is unset
+
+### 🐛 Bug Fixes
+
+- Remove create role from bootstrap
+- *(auditlog)* Align namespace and occurred_at across gRPC, use cases, and DB
+
+### 📚 Documentation
+
+- Update run section of README.md
+- Add tech assessment analysis with many improvements
+- Add in-memory implementation design
+- Update readme
+
+### ⚙️ Miscellaneous Tasks
+
+- Add drone as ci tool
+- Change just installer
+- Change drone publing to push docker image
+- Support only amd64 with drone
+- Set version dynamically in compilation time
+- Swtich from drone to woodpecker
+- Remove postgres for functional test given they are not longer require
+- Remove comment
+- Udpate github registry token
+- Add just release command
