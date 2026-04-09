@@ -69,6 +69,7 @@ func writeEvent(tenant string) error {
 	before, _ := structpb.NewStruct(map[string]any{"k": "v"})
 	resp, err := apiClient.WriteEvent(context.Background(), &auditlogv1.WriteEventRequest{
 		TenantId:    tenant,
+		Namespace:   "functional-test",
 		ActorId:     "actor-1",
 		ActorType:   "user",
 		EntityType:  "Thing",

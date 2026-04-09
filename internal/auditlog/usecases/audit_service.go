@@ -38,6 +38,7 @@ func (s *SimpleAuditService) WriteCompensation(ctx context.Context, opts WriteCo
 func (s *SimpleAuditService) writeAndSave(ctx context.Context, opts WriteEventOptions, compensates *uuid.UUID) (*domain.AuditEvent, error) {
 	b := domain.NewAuditEventBuilder().
 		WithTenantID(opts.TenantID).
+		WithNamespace(opts.Namespace).
 		WithActorID(opts.ActorID).
 		WithActorType(opts.ActorType).
 		WithEntityType(opts.EntityType).
@@ -53,6 +54,9 @@ func (s *SimpleAuditService) writeAndSave(ctx context.Context, opts WriteEventOp
 		WithMetadata(opts.Metadata).
 		WithReason(opts.Reason).
 		WithTags(opts.Tags)
+	if opts.OccurredAt != nil {
+		b = b.WithOccurredAt(*opts.OccurredAt)
+	}
 
 	if compensates != nil {
 		b = b.WithAction(domain.ActionCompensated).WithCompensatesID(*compensates)

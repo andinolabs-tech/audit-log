@@ -12,6 +12,7 @@ import (
 
 type QueryEventsOptions struct {
 	TenantID      *string
+	Namespace     *string
 	ActorID       *string
 	ActorType     *domain.ActorType
 	EntityType    *string

@@ -49,6 +49,7 @@ func toRecord(e *domain.AuditEvent) (*internal.AuditEventRecord, error) {
 	r := &internal.AuditEventRecord{
 		ID:             e.ID,
 		TenantID:       e.TenantID,
+		Namespace:      e.Namespace,
 		ActorID:        e.ActorID,
 		ActorType:      string(e.ActorType),
 		EntityType:     e.EntityType,
@@ -60,6 +61,7 @@ func toRecord(e *domain.AuditEvent) (*internal.AuditEventRecord, error) {
 		SessionID:      e.SessionID,
 		CorrelationID:  e.CorrelationID,
 		TraceID:        e.TraceID,
+		OccurredAt:     e.OccurredAt,
 		Timestamp:      e.Timestamp,
 		CompensatesID:  e.CompensatesID,
 		Reason:         e.Reason,
@@ -91,6 +93,7 @@ func toDomain(r *internal.AuditEventRecord) (*domain.AuditEvent, error) {
 	e := &domain.AuditEvent{
 		ID:             r.ID,
 		TenantID:       r.TenantID,
+		Namespace:      r.Namespace,
 		ActorID:        r.ActorID,
 		ActorType:      domain.ActorType(r.ActorType),
 		EntityType:     r.EntityType,
@@ -102,6 +105,7 @@ func toDomain(r *internal.AuditEventRecord) (*domain.AuditEvent, error) {
 		SessionID:      r.SessionID,
 		CorrelationID:  r.CorrelationID,
 		TraceID:        r.TraceID,
+		OccurredAt:     r.OccurredAt,
 		Timestamp:      r.Timestamp,
 		CompensatesID:  r.CompensatesID,
 		Reason:         r.Reason,
@@ -175,6 +179,9 @@ func applyQueryFilters(q *gorm.DB, opts usecases.QueryEventsOptions) *gorm.DB {
 	if opts.TenantID != nil {
 		q = q.Where("tenant_id = ?", *opts.TenantID)
 	}
+	if opts.Namespace != nil {
+		q = q.Where("namespace = ?", *opts.Namespace)
+	}
 	if opts.ActorID != nil {
 		q = q.Where("actor_id = ?", *opts.ActorID)
 	}
@@ -227,6 +234,7 @@ func BootstrapSQL(db *gorm.DB) error {
 		`CREATE INDEX IF NOT EXISTS idx_audit_events_tenant_partial ON audit_events (tenant_id) WHERE tenant_id IS NOT NULL AND tenant_id <> ''`,
 		`CREATE INDEX IF NOT EXISTS idx_audit_events_actor_partial ON audit_events (actor_id) WHERE actor_id IS NOT NULL AND actor_id <> ''`,
 		`CREATE INDEX IF NOT EXISTS idx_audit_events_entity_type_partial ON audit_events (entity_type) WHERE entity_type IS NOT NULL AND entity_type <> ''`,
+		`CREATE INDEX IF NOT EXISTS idx_audit_events_namespace_partial ON audit_events (namespace) WHERE namespace IS NOT NULL AND namespace <> ''`,
 		`CREATE INDEX IF NOT EXISTS idx_audit_events_action_partial ON audit_events (action) WHERE action IS NOT NULL AND action <> ''`,
 		`CREATE INDEX IF NOT EXISTS idx_audit_events_timestamp_partial ON audit_events ("timestamp")`,
 	}

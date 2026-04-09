@@ -10,6 +10,7 @@ import (
 type AuditEventRecord struct {
 	ID             uuid.UUID `gorm:"primaryKey"`
 	TenantID       string    `gorm:"not null"`
+	Namespace      string    `gorm:"not null"`
 	ActorID        string    `gorm:"not null"`
 	ActorType      string    `gorm:"not null"`
 	EntityType     string    `gorm:"not null"`
@@ -21,6 +22,7 @@ type AuditEventRecord struct {
 	SessionID      string
 	CorrelationID  string
 	TraceID        string
+	OccurredAt     *time.Time
 	Timestamp      time.Time `gorm:"not null"`
 	CompensatesID  *uuid.UUID
 	Before         datatypes.JSON

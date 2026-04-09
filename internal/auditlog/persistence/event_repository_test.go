@@ -39,6 +39,7 @@ var _ = Describe("EventRepository", func() {
 		ev := &domain.AuditEvent{
 			ID:          id,
 			TenantID:    "t1",
+			Namespace:   "ns1",
 			ActorID:     "a1",
 			ActorType:   domain.ActorTypeUser,
 			EntityType:  "E",
@@ -60,6 +61,7 @@ var _ = Describe("EventRepository", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(got).NotTo(BeNil())
 		Expect(got.TenantID).To(Equal("t1"))
+		Expect(got.Namespace).To(Equal("ns1"))
 		Expect(got.Before).To(Equal(map[string]any{"x": float64(1)}))
 		Expect(got.Tags).To(Equal([]string{"t"}))
 	})
@@ -81,6 +83,7 @@ var _ = Describe("EventRepository", func() {
 			ev := &domain.AuditEvent{
 				ID:          id,
 				TenantID:    "t1",
+				Namespace:   "ns1",
 				ActorID:     "a",
 				ActorType:   domain.ActorTypeUser,
 				EntityType:  "E",

@@ -31,6 +31,7 @@ var _ = Describe("SimpleAuditService", func() {
 	baseWriteOpts := func() usecases.WriteEventOptions {
 		return usecases.WriteEventOptions{
 			TenantID:    "t1",
+			Namespace:   "ns1",
 			ActorID:     "a1",
 			ActorType:   domain.ActorTypeUser,
 			EntityType:  "Order",

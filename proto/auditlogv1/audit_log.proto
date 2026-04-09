@@ -32,6 +32,8 @@ message WriteEventRequest {
   google.protobuf.Struct metadata = 15;
   string reason = 16;
   repeated string tags = 17;
+  string namespace = 18;
+  google.protobuf.Timestamp occurred_at = 19;
 }
 
 message WriteEventResponse {
@@ -62,6 +64,7 @@ message QueryEventsRequest {
   optional string trace_id = 12;
   string page_token = 13;
   int32 page_size = 14;
+  optional string namespace = 15;
 }
 
 message QueryEventsResponse {
@@ -99,4 +102,6 @@ message AuditEvent {
   google.protobuf.Struct metadata = 19;
   string reason = 20;
   repeated string tags = 21;
+  string namespace = 22;
+  google.protobuf.Timestamp occurred_at = 23;
 }

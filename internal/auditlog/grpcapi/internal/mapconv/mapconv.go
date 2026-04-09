@@ -23,8 +23,9 @@ func WriteEventRequestToOpts(req *auditlogv1.WriteEventRequest) (usecases.WriteE
 	if err != nil {
 		return usecases.WriteEventOptions{}, err
 	}
-	return usecases.WriteEventOptions{
+	opts := usecases.WriteEventOptions{
 		TenantID:      req.GetTenantId(),
+		Namespace:     req.GetNamespace(),
 		ActorID:       req.GetActorId(),
 		ActorType:     domain.ActorType(req.GetActorType()),
 		EntityType:    req.GetEntityType(),
@@ -41,7 +42,15 @@ func WriteEventRequestToOpts(req *auditlogv1.WriteEventRequest) (usecases.WriteE
 		Metadata:      meta,
 		Reason:        req.GetReason(),
 		Tags:          append([]string(nil), req.GetTags()...),
-	}, nil
+	}
+	if t := req.GetOccurredAt(); t != nil {
+		if err := t.CheckValid(); err != nil {
+			return usecases.WriteEventOptions{}, err
+		}
+		tt := t.AsTime().UTC()
+		opts.OccurredAt = &tt
+	}
+	return opts, nil
 }
 
 func QueryEventsRequestToOpts(req *auditlogv1.QueryEventsRequest) (usecases.QueryEventsOptions, error) {
@@ -49,6 +58,10 @@ func QueryEventsRequestToOpts(req *auditlogv1.QueryEventsRequest) (usecases.Quer
 	if req.TenantId != nil {
 		v := req.GetTenantId()
 		opts.TenantID = &v
+	}
+	if req.Namespace != nil {
+		v := *req.Namespace
+		opts.Namespace = &v
 	}
 	if req.ActorId != nil {
 		v := req.GetActorId()
@@ -134,6 +147,7 @@ func DomainEventToProto(e *domain.AuditEvent) (*auditlogv1.AuditEvent, error) {
 	out := &auditlogv1.AuditEvent{
 		Id:            e.ID.String(),
 		TenantId:      e.TenantID,
+		Namespace:     e.Namespace,
 		ActorId:       e.ActorID,
 		ActorType:     string(e.ActorType),
 		EntityType:    e.EntityType,
@@ -152,6 +166,9 @@ func DomainEventToProto(e *domain.AuditEvent) (*auditlogv1.AuditEvent, error) {
 		Metadata:      meta,
 		Reason:        e.Reason,
 		Tags:          append([]string(nil), e.Tags...),
+	}
+	if e.OccurredAt != nil {
+		out.OccurredAt = timestamppb.New(*e.OccurredAt)
 	}
 	if e.CompensatesID != nil {
 		s := e.CompensatesID.String()

@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -10,6 +11,8 @@ import (
 
 type WriteEventOptions struct {
 	TenantID      string
+	Namespace     string
+	OccurredAt    *time.Time
 	ActorID       string
 	ActorType     domain.ActorType
 	EntityType    string
