@@ -1,4 +1,4 @@
-# audit-log
+# Audit Log
 
 A Go service that stores and queries **audit events** over **gRPC**, backed by **PostgreSQL**, with **OpenTelemetry** tracing and metrics, and optional startup **schema migration** when an admin database URL is configured.
 
@@ -49,18 +49,18 @@ The process listens for gRPC on **`50051`** by default and exposes **pprof** on 
 
 Configuration is loaded from `server.yaml` (search paths: `.`, `./config`, `/etc/audit-log`) and overridden by environment variables. All env vars use the prefix **`AUDIT_LOG_`**.
 
-| Key (YAML / env suffix) | Description |
-|-------------------------|-------------|
-| `db_dsn` / `DB_DSN` | **Required.** Runtime PostgreSQL DSN (e.g. writer role). |
-| `db_admin_dsn` / `DB_ADMIN_DSN` | Optional. Superuser/admin DSN for migrations and bootstrap SQL on startup. |
-| `server_port` / `SERVER_PORT` | gRPC listen port (default `50051`). |
-| `server_pprof_port` / `SERVER_PPROF_PORT` | pprof HTTP port (default `6061`). |
-| `otel_enabled` / `OTEL_ENABLED` | Enable OpenTelemetry (default `true`). |
-| `otel_endpoint` / `OTEL_ENDPOINT` | OTLP gRPC endpoint (default `localhost:4317`). |
-| `otel_service_name` / `OTEL_SERVICE_NAME` | Service name in telemetry (default `audit-log`). |
-| `otel_environment` / `OTEL_ENVIRONMENT` | e.g. `development` (text logs) vs production-style JSON logging behavior in `main`. |
-| `otel_sample_rate` / `OTEL_SAMPLE_RATE` | Trace sampling ratio (default `0.1`). |
-| `general_log_level` / `GENERAL_LOG_LEVEL` | `debug`, `info`, `warn`, or `error` (default `info`). |
+| Key (YAML / env suffix)                   | Description                                                                         |
+| ----------------------------------------- | ----------------------------------------------------------------------------------- |
+| `db_dsn` / `DB_DSN`                       | **Required.** Runtime PostgreSQL DSN (e.g. writer role).                            |
+| `db_admin_dsn` / `DB_ADMIN_DSN`           | Optional. Superuser/admin DSN for migrations and bootstrap SQL on startup.          |
+| `server_port` / `SERVER_PORT`             | gRPC listen port (default `50051`).                                                 |
+| `server_pprof_port` / `SERVER_PPROF_PORT` | pprof HTTP port (default `6061`).                                                   |
+| `otel_enabled` / `OTEL_ENABLED`           | Enable OpenTelemetry (default `true`).                                              |
+| `otel_endpoint` / `OTEL_ENDPOINT`         | OTLP gRPC endpoint (default `localhost:4317`).                                      |
+| `otel_service_name` / `OTEL_SERVICE_NAME` | Service name in telemetry (default `audit-log`).                                    |
+| `otel_environment` / `OTEL_ENVIRONMENT`   | e.g. `development` (text logs) vs production-style JSON logging behavior in `main`. |
+| `otel_sample_rate` / `OTEL_SAMPLE_RATE`   | Trace sampling ratio (default `0.1`).                                               |
+| `general_log_level` / `GENERAL_LOG_LEVEL` | `debug`, `info`, `warn`, or `error` (default `info`).                               |
 
 See `config/server.yaml` and `.env.example` for concrete values.
 
@@ -87,14 +87,14 @@ The image exposes ports **50051** (gRPC) and **6061** (pprof). Pass configuratio
 
 ## Development
 
-| Command | Purpose |
-|---------|---------|
-| `just build` | Build `bin/audit-log`. |
-| `just wire` | Regenerate Google Wire DI (`cmd/server/wire`). |
-| `just mock` | Regenerate use case mocks. |
-| `just unit` | Unit tests with race detector and coverage. |
+| Command           | Purpose                                                                                                                                                                                                                                                                                                                                |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `just build`      | Build `bin/audit-log`.                                                                                                                                                                                                                                                                                                                 |
+| `just wire`       | Regenerate Google Wire DI (`cmd/server/wire`).                                                                                                                                                                                                                                                                                         |
+| `just mock`       | Regenerate use case mocks.                                                                                                                                                                                                                                                                                                             |
+| `just unit`       | Unit tests with race detector and coverage.                                                                                                                                                                                                                                                                                            |
 | `just functional` | Build, `docker compose up --wait`, start `bin/audit-log` in the background, wait until the gRPC port accepts connections, run Godog scenarios against that address, then stop the app and `docker compose down`. Preserves `go test` exit code. Sets `AUDIT_LOG_FUNCTIONAL_GRPC_ADDR` (default `127.0.0.1` + `AUDIT_LOG_SERVER_PORT`). |
-| `just arch` | Run [arch-go](https://github.com/arch-go/arch-go) architecture checks. |
-| `just proto` | Regenerate protobuf Go code. |
+| `just arch`       | Run [arch-go](https://github.com/arch-go/arch-go) architecture checks.                                                                                                                                                                                                                                                                 |
+| `just proto`      | Regenerate protobuf Go code.                                                                                                                                                                                                                                                                                                           |
 
 Database migrations for production are expected to be applied according to your ops process; the server can run `AutoMigrate` when `AUDIT_LOG_DB_ADMIN_DSN` is set—see `cmd/server/main.go` and persistence bootstrap helpers.
