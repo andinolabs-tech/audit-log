@@ -35,21 +35,13 @@ functional *args:
 	#!/usr/bin/env bash
 	set -euo pipefail
 	just build
-	if [ "${GITHUB_ACTIONS:-}" != "true" ]; then
-		docker compose up -d --wait
-	fi
 	export AUDIT_LOG_SERVER_PORT="${AUDIT_LOG_SERVER_PORT:-50051}"
 	export AUDIT_LOG_FUNCTIONAL_GRPC_ADDR="${AUDIT_LOG_FUNCTIONAL_GRPC_ADDR:-127.0.0.1:${AUDIT_LOG_SERVER_PORT}}"
-	export AUDIT_LOG_DB_DSN="${AUDIT_LOG_DB_DSN:-postgres://audit:audit@localhost:5432/auditlog?sslmode=disable}"
-	export AUDIT_LOG_DB_ADMIN_DSN="${AUDIT_LOG_DB_ADMIN_DSN:-postgres://audit:audit@localhost:5432/auditlog?sslmode=disable}"
 	export AUDIT_LOG_OTEL_ENABLED="${AUDIT_LOG_OTEL_ENABLED:-false}"
 	cleanup() {
 		if [ -n "${APP_PID:-}" ]; then
 			kill -TERM "${APP_PID}" 2>/dev/null || true
 			wait "${APP_PID}" 2>/dev/null || true
-		fi
-		if [ "${GITHUB_ACTIONS:-}" != "true" ]; then
-			docker compose down || true
 		fi
 	}
 	trap cleanup EXIT

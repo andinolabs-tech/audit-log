@@ -4,27 +4,15 @@ when:
 labels:
   platform: linux/amd64
 
-services:
-  - name: postgres
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: audit
-      POSTGRES_PASSWORD: audit
-      POSTGRES_DB: auditlog
-
 steps:
   - name: test
     image: golang:1.26-bookworm
     environment:
-      AUDIT_LOG_DB_DSN: postgres://audit:audit@postgres:5432/auditlog?sslmode=disable
-      AUDIT_LOG_DB_ADMIN_DSN: postgres://audit:audit@postgres:5432/auditlog?sslmode=disable
       AUDIT_LOG_OTEL_ENABLED: "false"
       GITHUB_ACTIONS: "true"
     commands:
       - apt-get update && apt-get install -y netcat-openbsd curl ca-certificates
-      # Official installer (same family as GHA extractions/setup-just): picks the right arch (e.g. musl on linux/amd64).
       - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin --tag 1.40.0
-      - for i in $(seq 1 60); do nc -z postgres 5432 && break; sleep 1; done
       - just arch
       - just unit
       - just functional
