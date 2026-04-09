@@ -23,7 +23,13 @@ arch:
 	go run github.com/arch-go/arch-go/v2@v2.1.2
 
 unit *args:
+	#!/usr/bin/env bash
+	set -euo pipefail
 	go test ./... -race -count=1 -coverprofile=coverage.out {{args}}
+	go test ./internal/auditlog/domain ./internal/auditlog/usecases -race -count=1 -coverprofile=coverage-gate.out {{args}}
+	total="$(go tool cover -func=coverage-gate.out | awk '/^total:/{gsub(/%/,"",$NF); print $NF; exit}')"
+	awk -v t="${total}" 'BEGIN{if (t+0 < 60) {printf "domain+usecases coverage %.1f%% is below required 60%%\n", t+0 > "/dev/stderr"; exit 1}}'
+	echo "domain+usecases coverage: ${total}% (min 60%)"
 
 functional *args:
 	#!/usr/bin/env bash

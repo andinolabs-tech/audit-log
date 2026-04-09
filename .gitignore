@@ -4,6 +4,7 @@
 # Test & coverage
 *.out
 coverage.out
+coverage-gate.out
 coverage.html
 *.coverprofile
 profile.cov
