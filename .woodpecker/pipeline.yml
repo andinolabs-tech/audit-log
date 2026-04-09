@@ -61,7 +61,7 @@ steps:
     environment:
       PLUGIN_ENV_FILE: .plugin.env
       PLUGIN_PASSWORD:
-        from_secret: github_token
+        from_secret: ghcr_token
     when:
       - event: [push, tag]
         branch: main
