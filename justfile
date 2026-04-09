@@ -65,8 +65,29 @@ functional *args:
 	set -e
 	exit "${TEST_EXIT}"
 
-release v:
-	@echo "Tag release {{v}} (implement git tag/push in CI)"
+release version:
+    #!/bin/bash
+    set -e
+
+    CHANGELOG_FILE_NAME="CHANGELOG.md"
+    echo "📝 Updating $CHANGELOG_FILE_NAME for {{version}}..."
+
+    git cliff -o
+
+    echo "✅ $CHANGELOG_FILE_NAME updated"
+
+    echo "📦 Committing changelog..."
+    git add "$CHANGELOG_FILE_NAME"
+    git commit -m "chore: update changelog for {{version}}"
+
+    echo "🚀 Pushing changes..."
+    git push
+
+    echo "🏷️  Creating tag {{version}}..."
+    git tag {{version}}
+    git push --tags
+
+    echo "✅ Release {{version}} complete!"
 
 proto:
 	protoc -I=proto/auditlogv1 -I="$(shell brew --prefix protobuf)/include" \
