@@ -4,7 +4,8 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o /out/audit-log ./cmd/server
+ARG VERSION=0.0.0-dev
+RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X 'audit-log/internal/version.Version=${VERSION}'" -o /out/audit-log ./cmd/server
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/audit-log /audit-log

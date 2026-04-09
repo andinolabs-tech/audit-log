@@ -19,9 +19,10 @@ type Config struct {
 	DBAdminDSN      string
 	OTelEnabled     bool
 	OTelEndpoint    string
-	OTelServiceName string
-	OTelEnvironment string
-	OTelSampleRate  float64
+	OTelServiceName    string
+	OTelServiceVersion string
+	OTelEnvironment    string
+	OTelSampleRate     float64
 	GeneralLogLevel string
 }
 
@@ -47,6 +48,7 @@ func load() {
 	v.SetDefault("otel_enabled", true)
 	v.SetDefault("otel_endpoint", "localhost:4317")
 	v.SetDefault("otel_service_name", "audit-log")
+	v.SetDefault("otel_service_version", "")
 	v.SetDefault("otel_environment", "development")
 	v.SetDefault("otel_sample_rate", 0.1)
 	v.SetDefault("general_log_level", "info")
@@ -58,8 +60,9 @@ func load() {
 		DBAdminDSN:      v.GetString("db_admin_dsn"),
 		OTelEnabled:     v.GetBool("otel_enabled"),
 		OTelEndpoint:    v.GetString("otel_endpoint"),
-		OTelServiceName: v.GetString("otel_service_name"),
-		OTelEnvironment: v.GetString("otel_environment"),
+		OTelServiceName:    v.GetString("otel_service_name"),
+		OTelServiceVersion: v.GetString("otel_service_version"),
+		OTelEnvironment:    v.GetString("otel_environment"),
 		OTelSampleRate:  v.GetFloat64("otel_sample_rate"),
 		GeneralLogLevel: v.GetString("general_log_level"),
 	}

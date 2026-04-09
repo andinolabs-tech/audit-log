@@ -18,6 +18,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 
 	"audit-log/internal/infra/config"
+	"audit-log/internal/version"
 )
 
 // Install configures global TracerProvider, MeterProvider, and B3 propagation.
@@ -35,7 +36,7 @@ func Install(ctx context.Context, cfg *config.Config) (shutdown func(context.Con
 		resource.WithAttributes(
 			semconv.ServiceName(cfg.OTelServiceName),
 			semconv.DeploymentEnvironment(cfg.OTelEnvironment),
-			semconv.ServiceVersion("0.0.0-dev"),
+			semconv.ServiceVersion(otelServiceVersion(cfg)),
 		),
 	)
 	if err != nil {
@@ -81,6 +82,13 @@ func Install(ctx context.Context, cfg *config.Config) (shutdown func(context.Con
 			tp.Shutdown(shutdownCtx),
 		)
 	}, nil
+}
+
+func otelServiceVersion(cfg *config.Config) string {
+	if v := strings.TrimSpace(cfg.OTelServiceVersion); v != "" {
+		return v
+	}
+	return version.String()
 }
 
 func buildSampler(cfg *config.Config) sdktrace.Sampler {
