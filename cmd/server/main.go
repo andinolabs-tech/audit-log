@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc/reflection"
+	"gorm.io/gorm"
 
 	"audit-log/cmd/server/wire"
 	"audit-log/internal/auditlog/persistence"
@@ -51,28 +52,40 @@ func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	if cfg.DBAdminDSN != "" {
-		admin, err := database.OpenGORM(cfg.DBAdminDSN)
+	var db *gorm.DB
+	if cfg.DBDSN == "" {
+		slog.Warn("AUDIT_LOG_DB_DSN not set — using in-memory SQLite (data will not persist)")
+		db, err = database.OpenInMemory()
 		if err != nil {
 			return err
 		}
-		sqlAdmin, err := admin.DB()
+		if err := persistence.AutoMigrateModel(db); err != nil {
+			return err
+		}
+	} else {
+		if cfg.DBAdminDSN != "" {
+			admin, err := database.OpenGORM(cfg.DBAdminDSN)
+			if err != nil {
+				return err
+			}
+			sqlAdmin, err := admin.DB()
+			if err != nil {
+				return err
+			}
+			defer sqlAdmin.Close()
+			if err := persistence.AutoMigrateModel(admin); err != nil {
+				return err
+			}
+			if err := persistence.BootstrapSQL(admin); err != nil {
+				slog.Warn("database bootstrap SQL failed (expected on non-Postgres or missing privileges)", "err", err)
+			}
+		}
+		db, err = database.OpenGORM(cfg.DBDSN)
 		if err != nil {
 			return err
-		}
-		defer sqlAdmin.Close()
-		if err := persistence.AutoMigrateModel(admin); err != nil {
-			return err
-		}
-		if err := persistence.BootstrapSQL(admin); err != nil {
-			slog.Warn("database bootstrap SQL failed (expected on non-Postgres or missing privileges)", "err", err)
 		}
 	}
 
-	db, err := database.OpenGORM(cfg.DBDSN)
-	if err != nil {
-		return err
-	}
 	sqlDB, err := db.DB()
 	if err != nil {
 		return err
