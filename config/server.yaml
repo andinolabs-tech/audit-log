@@ -1,4 +1,3 @@
-# Defaults; override with AUDIT_LOG_* environment variables.
 server_port: 50051
 server_pprof_port: 6061
 otel_enabled: true
