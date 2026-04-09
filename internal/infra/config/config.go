@@ -1,15 +1,14 @@
 package config
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/spf13/viper"
 )
 
 var (
-	once   sync.Once
-	global *Config
+	once    sync.Once
+	global  *Config
 	loadErr error
 )
 
@@ -63,8 +62,5 @@ func load() {
 		OTelEnvironment: v.GetString("otel_environment"),
 		OTelSampleRate:  v.GetFloat64("otel_sample_rate"),
 		GeneralLogLevel: v.GetString("general_log_level"),
-	}
-	if global.DBDSN == "" {
-		loadErr = fmt.Errorf("required configuration missing: AUDIT_LOG_DB_DSN")
 	}
 }
