@@ -1,8 +1,14 @@
 ## [unreleased]
 
+### 🐛 Bug Fixes
+
+- In-memory implementation use a library that support static compilation
+## [0.1.1] - 2026-04-10
+
 ### ⚙️ Miscellaneous Tasks
 
 - Add the ghcr server for the final docker image
+- Update changelog for v0.1.1
 ## [0.1.0] - 2026-04-09
 
 ### 🚀 Features
