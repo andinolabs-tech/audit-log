@@ -1,8 +1,17 @@
 ## [unreleased]
 
+### 🚀 Features
+
+- Add file and shared connection when sqlite
+## [0.1.2] - 2026-04-10
+
 ### 🐛 Bug Fixes
 
 - In-memory implementation use a library that support static compilation
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.1.2
 ## [0.1.1] - 2026-04-10
 
 ### ⚙️ Miscellaneous Tasks
