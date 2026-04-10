@@ -45,7 +45,7 @@ func load() {
 
 	v.SetDefault("server_port", 50051)
 	v.SetDefault("server_pprof_port", 6061)
-	v.SetDefault("otel_enabled", true)
+	v.SetDefault("otel_enabled", false)
 	v.SetDefault("otel_endpoint", "localhost:4317")
 	v.SetDefault("otel_service_name", "audit-log")
 	v.SetDefault("otel_service_version", "")

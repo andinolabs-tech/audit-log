@@ -55,7 +55,7 @@ Configuration is loaded from `server.yaml` (search paths: `.`, `./config`, `/etc
 | `db_admin_dsn` / `DB_ADMIN_DSN`           | Optional. Superuser/admin DSN for migrations and bootstrap SQL on startup.          |
 | `server_port` / `SERVER_PORT`             | gRPC listen port (default `50051`).                                                 |
 | `server_pprof_port` / `SERVER_PPROF_PORT` | pprof HTTP port (default `6061`).                                                   |
-| `otel_enabled` / `OTEL_ENABLED`           | Enable OpenTelemetry (default `true`).                                              |
+| `otel_enabled` / `OTEL_ENABLED`           | Enable OpenTelemetry (default `false`).                                             |
 | `otel_endpoint` / `OTEL_ENDPOINT`         | OTLP gRPC endpoint (default `localhost:4317`).                                      |
 | `otel_service_name` / `OTEL_SERVICE_NAME` | Service name in telemetry (default `audit-log`).                                    |
 | `otel_environment` / `OTEL_ENVIRONMENT`   | e.g. `development` (text logs) vs production-style JSON logging behavior in `main`. |
