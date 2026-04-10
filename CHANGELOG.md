@@ -1,5 +1,10 @@
 ## [unreleased]
 
+### ⚙️ Miscellaneous Tasks
+
+- Add the ghcr server for the final docker image
+## [0.1.0] - 2026-04-09
+
 ### 🚀 Features
 
 - First working version
@@ -33,3 +38,4 @@
 - Remove comment
 - Udpate github registry token
 - Add just release command
+- Update changelog for v0.1.0
