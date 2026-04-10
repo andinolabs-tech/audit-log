@@ -45,7 +45,7 @@ steps:
         fi
         {
           echo "PLUGIN_REGISTRY=ghcr.io"
-          echo "PLUGIN_REPO=$${REPO_LC}"
+          echo "PLUGIN_REPO=ghcr.io/$${REPO_LC}"
           echo "PLUGIN_USERNAME=$${CI_REPO_OWNER}"
           echo "PLUGIN_TAGS=$${TAGS}"
           echo "PLUGIN_DOCKERFILE=Dockerfile"
