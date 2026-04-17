@@ -1,8 +1,26 @@
 ## [unreleased]
 
+### 🚜 Refactor
+
+- Use value object within domain layer
+
+### 🧪 Testing
+
+- Trigger ci pipeline
+- Trigger ci pipeline
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove comments
+## [0.1.3] - 2026-04-10
+
 ### 🚀 Features
 
 - Add file and shared connection when sqlite
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.1.3
 ## [0.1.2] - 2026-04-10
 
 ### 🐛 Bug Fixes
