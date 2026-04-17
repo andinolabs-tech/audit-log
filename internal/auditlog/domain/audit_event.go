@@ -52,8 +52,8 @@ type AuditEvent struct {
 	SessionID     ID
 	CorrelationID ID
 	TraceID       string
-	OccurredAt    *time.Time // when the event happened in the source system
-	Timestamp     time.Time  // when the event was received by this service
+	OccurredAt    *time.Time
+	Timestamp     time.Time
 	CompensatesID *uuid.UUID
 	Before        map[string]any
 	After         map[string]any
