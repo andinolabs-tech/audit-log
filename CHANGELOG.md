@@ -1,4 +1,4 @@
-## [unreleased]
+## [0.1.4] - 2026-04-17
 
 ### 🚜 Refactor
 
@@ -12,6 +12,7 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Remove comments
+- Update changelog for v0.1.4
 ## [0.1.3] - 2026-04-10
 
 ### 🚀 Features
