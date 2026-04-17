@@ -16,7 +16,7 @@ func NewAuditEventBuilder() *AuditEventBuilder {
 	return &AuditEventBuilder{}
 }
 
-func (b *AuditEventBuilder) WithTenantID(v string) *AuditEventBuilder {
+func (b *AuditEventBuilder) WithTenantID(v ID) *AuditEventBuilder {
 	b.actions = append(b.actions, func(e *AuditEvent) error {
 		e.TenantID = v
 		return nil
@@ -32,7 +32,7 @@ func (b *AuditEventBuilder) WithNamespace(v string) *AuditEventBuilder {
 	return b
 }
 
-func (b *AuditEventBuilder) WithActorID(v string) *AuditEventBuilder {
+func (b *AuditEventBuilder) WithActorID(v ID) *AuditEventBuilder {
 	b.actions = append(b.actions, func(e *AuditEvent) error {
 		e.ActorID = v
 		return nil
@@ -56,7 +56,7 @@ func (b *AuditEventBuilder) WithEntityType(v string) *AuditEventBuilder {
 	return b
 }
 
-func (b *AuditEventBuilder) WithEntityID(v string) *AuditEventBuilder {
+func (b *AuditEventBuilder) WithEntityID(v ID) *AuditEventBuilder {
 	b.actions = append(b.actions, func(e *AuditEvent) error {
 		e.EntityID = v
 		return nil
@@ -96,7 +96,7 @@ func (b *AuditEventBuilder) WithSourceIP(v string) *AuditEventBuilder {
 	return b
 }
 
-func (b *AuditEventBuilder) WithSessionID(v string) *AuditEventBuilder {
+func (b *AuditEventBuilder) WithSessionID(v ID) *AuditEventBuilder {
 	b.actions = append(b.actions, func(e *AuditEvent) error {
 		e.SessionID = v
 		return nil
@@ -104,7 +104,7 @@ func (b *AuditEventBuilder) WithSessionID(v string) *AuditEventBuilder {
 	return b
 }
 
-func (b *AuditEventBuilder) WithCorrelationID(v string) *AuditEventBuilder {
+func (b *AuditEventBuilder) WithCorrelationID(v ID) *AuditEventBuilder {
 	b.actions = append(b.actions, func(e *AuditEvent) error {
 		e.CorrelationID = v
 		return nil

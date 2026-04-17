@@ -29,7 +29,7 @@ func (s *SimpleAuditService) WriteCompensation(ctx context.Context, opts WriteCo
 	if ref == nil {
 		return nil, ErrReferencedEventNotFound
 	}
-	if ref.TenantID != opts.TenantID {
+	if ref.TenantID != domain.ID(opts.TenantID) {
 		return nil, ErrTenantMismatch
 	}
 	return s.writeAndSave(ctx, opts.WriteEventOptions, &opts.CompensatesID)
@@ -37,17 +37,17 @@ func (s *SimpleAuditService) WriteCompensation(ctx context.Context, opts WriteCo
 
 func (s *SimpleAuditService) writeAndSave(ctx context.Context, opts WriteEventOptions, compensates *uuid.UUID) (*domain.AuditEvent, error) {
 	b := domain.NewAuditEventBuilder().
-		WithTenantID(opts.TenantID).
+		WithTenantID(domain.ID(opts.TenantID)).
 		WithNamespace(opts.Namespace).
-		WithActorID(opts.ActorID).
+		WithActorID(domain.ID(opts.ActorID)).
 		WithActorType(opts.ActorType).
 		WithEntityType(opts.EntityType).
-		WithEntityID(opts.EntityID).
+		WithEntityID(domain.ID(opts.EntityID)).
 		WithOutcome(opts.Outcome).
 		WithServiceName(opts.ServiceName).
 		WithSourceIP(opts.SourceIP).
-		WithSessionID(opts.SessionID).
-		WithCorrelationID(opts.CorrelationID).
+		WithSessionID(domain.ID(opts.SessionID)).
+		WithCorrelationID(domain.ID(opts.CorrelationID)).
 		WithTraceID(opts.TraceID).
 		WithBefore(opts.Before).
 		WithAfter(opts.After).

@@ -31,20 +31,26 @@ const (
 	OutcomePartial Outcome = "PARTIAL"
 )
 
+type ID string
+
+func (id ID) String() string {
+	return string(id)
+}
+
 type AuditEvent struct {
 	ID            uuid.UUID
-	TenantID      string
+	TenantID      ID
 	Namespace     string
-	ActorID       string
+	ActorID       ID
 	ActorType     ActorType
 	EntityType    string
-	EntityID      string
+	EntityID      ID
 	Action        Action
 	Outcome       Outcome
 	ServiceName   string
 	SourceIP      string
-	SessionID     string
-	CorrelationID string
+	SessionID     ID
+	CorrelationID ID
 	TraceID       string
 	OccurredAt    *time.Time // when the event happened in the source system
 	Timestamp     time.Time  // when the event was received by this service
