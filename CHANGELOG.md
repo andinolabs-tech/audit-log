@@ -1,4 +1,4 @@
-## [unreleased]
+## [0.1.23] - 2026-04-18
 
 ### 🚀 Features
 
@@ -8,6 +8,10 @@
 
 - Change unit test that expect string instead domain.ID
 - Change unit test that expect string instead domain.ID
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.1.23
 ## [0.1.22] - 2026-04-18
 
 ### ⚙️ Miscellaneous Tasks
