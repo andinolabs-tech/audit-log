@@ -1,22 +1,24 @@
-package version
+package version_test
 
-import "testing"
+import (
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
-func TestString_usesInjectedVersion(t *testing.T) {
-	old := Version
-	t.Cleanup(func() { Version = old })
-	Version = "  v1.2.3  "
-	if got := String(); got != "v1.2.3" {
-		t.Fatalf("String() = %q, want v1.2.3", got)
-	}
-}
+	"audit-log/internal/version"
+)
 
-func TestString_nonEmptyWithoutInjection(t *testing.T) {
-	old := Version
-	t.Cleanup(func() { Version = old })
-	Version = ""
-	got := String()
-	if got == "" {
-		t.Fatal("String() returned empty")
-	}
-}
+var _ = Describe("String", func() {
+	It("trims space and returns injected version", func() {
+		old := version.Version
+		DeferCleanup(func() { version.Version = old })
+		version.Version = "  v1.2.3  "
+		Expect(version.String()).To(Equal("v1.2.3"))
+	})
+
+	It("returns a non-empty value when Version is empty", func() {
+		old := version.Version
+		DeferCleanup(func() { version.Version = old })
+		version.Version = ""
+		Expect(version.String()).NotTo(BeEmpty())
+	})
+})
