@@ -60,7 +60,7 @@ var _ = Describe("EventRepository", func() {
 		got, err := repo.FindByID(ctx, id)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(got).NotTo(BeNil())
-		Expect(got.TenantID).To(Equal("t1"))
+		Expect(got.TenantID).To(Equal(domain.ID("t1")))
 		Expect(got.Namespace).To(Equal("ns1"))
 		Expect(got.Before).To(Equal(map[string]any{"x": float64(1)}))
 		Expect(got.Tags).To(Equal([]string{"t"}))
