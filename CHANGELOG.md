@@ -1,3 +1,8 @@
+## [0.1.35] - 2026-04-20
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.1.35
 ## [0.1.34] - 2026-04-20
 
 ### ⚙️ Miscellaneous Tasks
