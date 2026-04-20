@@ -1,8 +1,9 @@
-## [unreleased]
+## [0.1.32] - 2026-04-20
 
 ### ⚙️ Miscellaneous Tasks
 
 - Remove github actions in favor of argo workflows
+- Update changelog for v0.1.32
 ## [0.1.31] - 2026-04-20
 
 ### ⚙️ Miscellaneous Tasks
