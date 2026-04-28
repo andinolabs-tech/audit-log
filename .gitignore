@@ -38,3 +38,6 @@ __debug_bin*
 # Optional: live reload / temp
 tmp/
 air.toml.local
+
+# Git worktrees
+.worktrees/
