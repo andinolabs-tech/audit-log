@@ -1,4 +1,4 @@
-## [unreleased]
+## [0.2.0] - 2026-04-29
 
 ### 🚀 Features
 
@@ -9,6 +9,7 @@
 
 - Remove docker publish from woodpecker
 - Ignore .worktrees/ directory
+- Update changelog for v0.2.0
 ## [0.1.37] - 2026-04-20
 
 ### ⚙️ Miscellaneous Tasks
