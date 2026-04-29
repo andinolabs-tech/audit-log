@@ -1,3 +1,19 @@
+## [unreleased]
+
+### 🚀 Features
+
+- Add embedded SPA HTTP query API
+- Add ui for searching and displaying record logs
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove docker publish from woodpecker
+- Ignore .worktrees/ directory
+## [0.1.37] - 2026-04-20
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.1.37
 ## [0.1.36] - 2026-04-20
 
 ### ⚙️ Miscellaneous Tasks
