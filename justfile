@@ -15,8 +15,13 @@ build: web-build
 run: build
 	#!/usr/bin/env bash
 	set -euo pipefail
-	trap 'docker compose down' EXIT
-	docker compose up -d --wait
+	if command -v podman >/dev/null 2>&1; then
+		run_compose() { podman compose "$@"; }
+	else
+		run_compose() { docker compose "$@"; }
+	fi
+	trap 'run_compose down' EXIT
+	run_compose up -d --wait
 	./bin/audit-log
 
 dev:
