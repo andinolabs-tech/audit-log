@@ -19,7 +19,14 @@ run: build
 	docker compose up -d --wait
 	./bin/audit-log
 
-dev: run
+dev:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	trap 'kill 0; docker compose down' EXIT INT TERM
+	docker compose up -d --wait
+	go run ./cmd/server &
+	npm --prefix web run dev
+	wait
 
 wire:
 	cd cmd/server/wire && go generate
