@@ -1,6 +1,13 @@
 # Build output (see justfile: go build -o bin/audit-log)
 /bin/
 
+# Frontend build output (populated by `just web-build`)
+/internal/web/dist/*
+!/internal/web/dist/.gitkeep
+
+# Node
+web/node_modules/
+
 # Test & coverage
 *.out
 coverage.out

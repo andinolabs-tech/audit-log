@@ -175,12 +175,29 @@ func (r *EventRepository) Query(ctx context.Context, opts usecases.QueryEventsOp
 	return out, nil
 }
 
+func (r *EventRepository) QueryNamespaces(ctx context.Context) ([]string, error) {
+	var namespaces []string
+	err := r.db.WithContext(ctx).
+		Model(&internal.AuditEventRecord{}).
+		Distinct("namespace").
+		Where("namespace IS NOT NULL AND namespace != ''").
+		Order("namespace ASC").
+		Pluck("namespace", &namespaces).Error
+	if err != nil {
+		return nil, err
+	}
+	if namespaces == nil {
+		namespaces = []string{}
+	}
+	return namespaces, nil
+}
+
 func applyQueryFilters(q *gorm.DB, opts usecases.QueryEventsOptions) *gorm.DB {
 	if opts.TenantID != nil {
 		q = q.Where("tenant_id = ?", *opts.TenantID)
 	}
-	if opts.Namespace != nil {
-		q = q.Where("namespace = ?", *opts.Namespace)
+	if len(opts.Namespaces) > 0 {
+		q = q.Where("namespace IN ?", opts.Namespaces)
 	}
 	if opts.ActorID != nil {
 		q = q.Where("actor_id = ?", *opts.ActorID)

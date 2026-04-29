@@ -12,7 +12,7 @@ import (
 
 type QueryEventsOptions struct {
 	TenantID      *string
-	Namespace     *string
+	Namespaces    []string
 	ActorID       *string
 	ActorType     *domain.ActorType
 	EntityType    *string
@@ -32,4 +32,5 @@ type EventStore interface {
 	Save(ctx context.Context, event *domain.AuditEvent) error
 	FindByID(ctx context.Context, id uuid.UUID) (*domain.AuditEvent, error)
 	Query(ctx context.Context, opts QueryEventsOptions) ([]*domain.AuditEvent, error)
+	QueryNamespaces(ctx context.Context) ([]string, error)
 }

@@ -3,7 +3,13 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 default:
 	@just --list
 
-build:
+web-build:
+	cd web && npm ci && npm run build
+
+web-dev:
+	cd web && npm run dev
+
+build: web-build
 	go build -o bin/audit-log ./cmd/server
 
 run: build
@@ -12,6 +18,8 @@ run: build
 	trap 'docker compose down' EXIT
 	docker compose up -d --wait
 	./bin/audit-log
+
+dev: run
 
 wire:
 	cd cmd/server/wire && go generate

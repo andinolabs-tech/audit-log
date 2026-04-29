@@ -37,8 +37,8 @@ type WriteCompensationOptions struct {
 }
 
 type QueryEventsResult struct {
-	Events         []*domain.AuditEvent
-	NextPageToken  *uuid.UUID
+	Events        []*domain.AuditEvent
+	NextPageToken *uuid.UUID
 }
 
 type AuditService interface {
@@ -46,4 +46,5 @@ type AuditService interface {
 	WriteCompensation(ctx context.Context, opts WriteCompensationOptions) (*domain.AuditEvent, error)
 	QueryEvents(ctx context.Context, opts QueryEventsOptions) (*QueryEventsResult, error)
 	GetEvent(ctx context.Context, id uuid.UUID) (*domain.AuditEvent, error)
+	ListNamespaces(ctx context.Context) ([]string, error)
 }

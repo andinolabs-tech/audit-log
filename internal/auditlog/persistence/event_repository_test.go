@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/glebarez/sqlite"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/google/uuid"
-	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
@@ -102,5 +102,70 @@ var _ = Describe("EventRepository", func() {
 		secondPage, err := repo.Query(ctx, usecases.QueryEventsOptions{PageToken: &tok, PageSize: 10})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(secondPage).To(HaveLen(1))
+	})
+
+	It("filters events by multiple namespaces using IN", func() {
+		for _, ns := range []string{"ns1", "ns2", "ns3"} {
+			Expect(repo.Save(ctx, &domain.AuditEvent{
+				ID:          uuid.New(),
+				TenantID:    "t1",
+				Namespace:   ns,
+				ActorID:     "a1",
+				ActorType:   domain.ActorTypeUser,
+				EntityType:  "E",
+				EntityID:    "e1",
+				Action:      domain.ActionCreated,
+				Outcome:     domain.OutcomeSuccess,
+				ServiceName: "svc",
+				Timestamp:   time.Now().UTC(),
+			})).To(Succeed())
+		}
+
+		results, err := repo.Query(ctx, usecases.QueryEventsOptions{
+			Namespaces: []string{"ns1", "ns2"},
+			PageSize:   10,
+		})
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(results).To(HaveLen(2))
+		namespaces := []string{results[0].Namespace, results[1].Namespace}
+		Expect(namespaces).To(ConsistOf("ns1", "ns2"))
+	})
+
+	It("returns distinct namespaces ordered alphabetically", func() {
+		for _, ev := range []struct {
+			id string
+			ns string
+		}{
+			{"018f0000-0000-7000-8000-000000000010", "billing"},
+			{"018f0000-0000-7000-8000-000000000011", "auth"},
+			{"018f0000-0000-7000-8000-000000000012", "billing"},
+		} {
+			Expect(repo.Save(ctx, &domain.AuditEvent{
+				ID:          uuid.MustParse(ev.id),
+				TenantID:    "t1",
+				Namespace:   ev.ns,
+				ActorID:     "a1",
+				ActorType:   domain.ActorTypeUser,
+				EntityType:  "E",
+				EntityID:    "e1",
+				Action:      domain.ActionCreated,
+				Outcome:     domain.OutcomeSuccess,
+				ServiceName: "svc",
+				Timestamp:   time.Now().UTC(),
+			})).To(Succeed())
+		}
+
+		ns, err := repo.QueryNamespaces(ctx)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(ns).To(Equal([]string{"auth", "billing"}))
+	})
+
+	It("returns empty namespace slice when no events exist", func() {
+		ns, err := repo.QueryNamespaces(ctx)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(ns).To(BeEmpty())
 	})
 })

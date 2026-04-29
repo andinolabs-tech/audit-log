@@ -1,4 +1,5 @@
 server_port: 50051
+http_port: 8080
 server_pprof_port: 6061
 otel_enabled: true
 otel_endpoint: localhost:4317

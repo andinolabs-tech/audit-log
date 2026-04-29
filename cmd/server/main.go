@@ -17,10 +17,12 @@ import (
 	"gorm.io/gorm"
 
 	"audit-log/cmd/server/wire"
+	"audit-log/internal/auditlog/httpapi"
 	"audit-log/internal/auditlog/persistence"
 	"audit-log/internal/infra/config"
 	"audit-log/internal/infra/database"
 	"audit-log/internal/infra/telemetry"
+	webstatic "audit-log/internal/web"
 )
 
 func main() {
@@ -96,6 +98,10 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	svc, err := wire.InitializeService(db)
+	if err != nil {
+		return err
+	}
 
 	go func() {
 		addr := ":" + strconv.Itoa(cfg.PprofPort)
@@ -113,9 +119,23 @@ func run() error {
 
 	reflection.Register(grpcSrv)
 
-	errCh := make(chan error, 1)
+	httpMux := http.NewServeMux()
+	httpapi.NewHandler(svc).RegisterRoutes(httpMux)
+	httpMux.Handle("/", webstatic.Handler())
+	httpSrv := &http.Server{
+		Addr:    ":" + strconv.Itoa(cfg.HTTPPort),
+		Handler: httpMux,
+	}
+
+	errCh := make(chan error, 2)
 	go func() {
 		if serveErr := grpcSrv.Serve(lis); serveErr != nil {
+			errCh <- serveErr
+		}
+	}()
+	go func() {
+		slog.Info("HTTP listening", "addr", httpSrv.Addr)
+		if serveErr := httpSrv.ListenAndServe(); serveErr != nil && !errors.Is(serveErr, http.ErrServerClosed) {
 			errCh <- serveErr
 		}
 	}()
@@ -123,6 +143,12 @@ func run() error {
 	select {
 	case <-ctx.Done():
 		slog.Info("shutdown signal")
+		httpCtx, httpCancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer httpCancel()
+		if shutdownErr := httpSrv.Shutdown(httpCtx); shutdownErr != nil {
+			slog.Error("HTTP shutdown", "err", shutdownErr)
+		}
+
 		stopped := make(chan struct{})
 		go func() {
 			grpcSrv.GracefulStop()

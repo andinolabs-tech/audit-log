@@ -2,10 +2,11 @@ package usecases_test
 
 import (
 	"context"
+	"errors"
 
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
 
 	"audit-log/internal/auditlog/domain"
@@ -165,6 +166,25 @@ var _ = Describe("SimpleAuditService", func() {
 			got, err := svc.GetEvent(ctx, id)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(got).To(Equal(ev))
+		})
+	})
+
+	Context("ListNamespaces", func() {
+		It("delegates to the store and returns namespaces", func() {
+			store.EXPECT().QueryNamespaces(gomock.Any()).Return([]string{"auth", "billing"}, nil)
+
+			ns, err := svc.ListNamespaces(ctx)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(ns).To(Equal([]string{"auth", "billing"}))
+		})
+
+		It("propagates store errors", func() {
+			store.EXPECT().QueryNamespaces(gomock.Any()).Return(nil, errors.New("db error"))
+
+			_, err := svc.ListNamespaces(ctx)
+
+			Expect(err).To(MatchError("db error"))
 		})
 	})
 })

@@ -59,9 +59,9 @@ func QueryEventsRequestToOpts(req *auditlogv1.QueryEventsRequest) (usecases.Quer
 		v := req.GetTenantId()
 		opts.TenantID = &v
 	}
-	if req.Namespace != nil {
+	if req.Namespace != nil && *req.Namespace != "" {
 		v := *req.Namespace
-		opts.Namespace = &v
+		opts.Namespaces = []string{v}
 	}
 	if req.ActorId != nil {
 		v := req.GetActorId()

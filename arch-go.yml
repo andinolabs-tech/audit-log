@@ -7,6 +7,10 @@ dependenciesRules:
     shouldNotDependsOn:
       internal:
         - "audit-log/internal/auditlog/persistence"
+  - package: "audit-log/internal/auditlog/httpapi"
+    shouldNotDependsOn:
+      internal:
+        - "audit-log/internal/auditlog/persistence"
   - package: "audit-log/internal/auditlog/usecases"
     shouldNotDependsOn:
       internal:

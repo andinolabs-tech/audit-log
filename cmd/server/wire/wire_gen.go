@@ -26,6 +26,12 @@ func InitializeGRPC(db *gorm.DB) (*grpc.Server, error) {
 	return grpcServer, nil
 }
 
+func InitializeService(db *gorm.DB) (usecases.AuditService, error) {
+	eventRepository := persistence.NewEventRepository(db)
+	simpleAuditService := usecases.NewSimpleAuditService(eventRepository)
+	return simpleAuditService, nil
+}
+
 // wire.go:
 
 func registerAuditLogGRPC(api *grpcapi.Server) *grpc.Server {

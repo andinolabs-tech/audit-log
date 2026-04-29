@@ -32,3 +32,13 @@ func InitializeGRPC(db *gorm.DB) (*grpc.Server, error) {
 	)
 	return nil, nil
 }
+
+func InitializeService(db *gorm.DB) (usecases.AuditService, error) {
+	wire.Build(
+		persistence.NewEventRepository,
+		wire.Bind(new(usecases.EventStore), new(*persistence.EventRepository)),
+		usecases.NewSimpleAuditService,
+		wire.Bind(new(usecases.AuditService), new(*usecases.SimpleAuditService)),
+	)
+	return nil, nil
+}

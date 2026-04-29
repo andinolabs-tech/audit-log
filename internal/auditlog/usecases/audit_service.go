@@ -113,3 +113,7 @@ func (s *SimpleAuditService) QueryEvents(ctx context.Context, opts QueryEventsOp
 func (s *SimpleAuditService) GetEvent(ctx context.Context, id uuid.UUID) (*domain.AuditEvent, error) {
 	return s.store.FindByID(ctx, id)
 }
+
+func (s *SimpleAuditService) ListNamespaces(ctx context.Context) ([]string, error) {
+	return s.store.QueryNamespaces(ctx)
+}
