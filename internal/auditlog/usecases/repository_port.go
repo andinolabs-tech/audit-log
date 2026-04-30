@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -24,6 +25,8 @@ type QueryEventsOptions struct {
 	SessionID     *string
 	CorrelationID *string
 	TraceID       *string
+	TimestampFrom *time.Time
+	TimestampTo   *time.Time
 	PageToken     *uuid.UUID
 	PageSize      int
 }

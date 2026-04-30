@@ -232,6 +232,12 @@ func applyQueryFilters(q *gorm.DB, opts usecases.QueryEventsOptions) *gorm.DB {
 	if opts.TraceID != nil {
 		q = q.Where("trace_id = ?", *opts.TraceID)
 	}
+	if opts.TimestampFrom != nil {
+		q = q.Where("timestamp >= ?", *opts.TimestampFrom)
+	}
+	if opts.TimestampTo != nil {
+		q = q.Where("timestamp <= ?", *opts.TimestampTo)
+	}
 	return q
 }
 

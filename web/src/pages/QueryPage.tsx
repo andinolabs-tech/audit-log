@@ -1,11 +1,15 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
+import DateRangeFilter from '../components/DateRangeFilter'
+import { resolveDateRange } from '../dateRange'
+import type { DateRangeValue } from '../dateRange'
 import { SEARCH_KEYS, parseSearchQuery } from '../searchQuery'
 import type { AuditEvent, NamespacesResponse, QueryEventsResponse } from '../types/event'
 
 export default function QueryPage() {
   const [namespaces, setNamespaces] = useState<string[]>([])
   const [selected, setSelected] = useState<string[]>([])
+  const [dateRange, setDateRange] = useState<DateRangeValue>({ preset: 'today' })
   const [searchQuery, setSearchQuery] = useState('')
   const [pageSize, setPageSize] = useState(20)
   const [namespaceMenuOpen, setNamespaceMenuOpen] = useState(false)
@@ -41,6 +45,11 @@ export default function QueryPage() {
   const buildUrl = (searchParams: Array<[string, string]>, pageToken?: string) => {
     const params = new URLSearchParams()
     selected.forEach((namespace) => params.append('namespace', namespace))
+    if (dateRange.preset !== 'custom' || (dateRange.from && dateRange.to)) {
+      const range = resolveDateRange(dateRange)
+      params.set('timestamp_from', range.from.toISOString())
+      params.set('timestamp_to', range.to.toISOString())
+    }
     searchParams.forEach(([key, value]) => params.append(key, value))
     params.set('page_size', String(pageSize))
     if (pageToken) params.set('page_token', pageToken)
@@ -104,7 +113,7 @@ export default function QueryPage() {
         </div>
 
         <section className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-end">
+          <div className="grid gap-4 lg:grid-cols-[16rem_16rem_minmax(0,1fr)] lg:items-start">
             <div ref={namespaceMenuRef} className="relative lg:self-start">
               <label className="mb-2 block text-sm font-medium text-slate-700">Namespaces</label>
               {namespaces.length === 0 ? (
@@ -145,6 +154,8 @@ export default function QueryPage() {
                 </div>
               )}
             </div>
+
+            <DateRangeFilter value={dateRange} onChange={setDateRange} />
 
             <div>
               <label htmlFor="search-query" className="mb-2 block text-sm font-medium text-slate-700">

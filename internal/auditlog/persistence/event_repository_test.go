@@ -132,6 +132,50 @@ var _ = Describe("EventRepository", func() {
 		Expect(namespaces).To(ConsistOf("ns1", "ns2"))
 	})
 
+	It("filters events by an inclusive timestamp range", func() {
+		from := time.Date(2026, 4, 10, 0, 0, 0, 0, time.UTC)
+		to := time.Date(2026, 4, 12, 23, 59, 59, 0, time.UTC)
+		events := []struct {
+			entityID  string
+			timestamp time.Time
+		}{
+			{"before", from.Add(-time.Nanosecond)},
+			{"start-boundary", from},
+			{"inside", from.Add(24 * time.Hour)},
+			{"end-boundary", to},
+			{"after", to.Add(time.Nanosecond)},
+		}
+
+		for _, ev := range events {
+			Expect(repo.Save(ctx, &domain.AuditEvent{
+				ID:          uuid.New(),
+				TenantID:    "t1",
+				Namespace:   "ns1",
+				ActorID:     "a1",
+				ActorType:   domain.ActorTypeUser,
+				EntityType:  "E",
+				EntityID:    domain.ID(ev.entityID),
+				Action:      domain.ActionCreated,
+				Outcome:     domain.OutcomeSuccess,
+				ServiceName: "svc",
+				Timestamp:   ev.timestamp,
+			})).To(Succeed())
+		}
+
+		results, err := repo.Query(ctx, usecases.QueryEventsOptions{
+			TimestampFrom: &from,
+			TimestampTo:   &to,
+			PageSize:      10,
+		})
+
+		Expect(err).NotTo(HaveOccurred())
+		entityIDs := make([]string, 0, len(results))
+		for _, result := range results {
+			entityIDs = append(entityIDs, string(result.EntityID))
+		}
+		Expect(entityIDs).To(ConsistOf("start-boundary", "inside", "end-boundary"))
+	})
+
 	It("returns distinct namespaces ordered alphabetically", func() {
 		for _, ev := range []struct {
 			id string

@@ -93,6 +93,20 @@ func QueryParamsToOpts(r *http.Request) (usecases.QueryEventsOptions, error) {
 	if v := q.Get("trace_id"); v != "" {
 		opts.TraceID = &v
 	}
+	if v := q.Get("timestamp_from"); v != "" {
+		t, err := time.Parse(time.RFC3339, v)
+		if err != nil {
+			return usecases.QueryEventsOptions{}, fmt.Errorf("invalid timestamp_from: must be RFC3339")
+		}
+		opts.TimestampFrom = &t
+	}
+	if v := q.Get("timestamp_to"); v != "" {
+		t, err := time.Parse(time.RFC3339, v)
+		if err != nil {
+			return usecases.QueryEventsOptions{}, fmt.Errorf("invalid timestamp_to: must be RFC3339")
+		}
+		opts.TimestampTo = &t
+	}
 	if v := q.Get("page_size"); v != "" {
 		n, err := strconv.Atoi(v)
 		if err != nil {

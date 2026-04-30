@@ -75,6 +75,26 @@ var _ = Describe("QueryParamsToOpts", func() {
 		Expect(opts.CorrelationID).To(HaveValue(Equal("c1")))
 		Expect(opts.TraceID).To(HaveValue(Equal("tr1")))
 	})
+
+	It("parses timestamp range filters as RFC3339 times", func() {
+		r := httptest.NewRequest("GET", "/api/events?timestamp_from=2026-04-01T00:00:00Z&timestamp_to=2026-04-30T23:59:59Z", nil)
+
+		opts, err := mapconv.QueryParamsToOpts(r)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(opts.TimestampFrom).NotTo(BeNil())
+		Expect(opts.TimestampTo).NotTo(BeNil())
+		Expect(*opts.TimestampFrom).To(Equal(time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC)))
+		Expect(*opts.TimestampTo).To(Equal(time.Date(2026, 4, 30, 23, 59, 59, 0, time.UTC)))
+	})
+
+	It("returns error for invalid timestamp range filters", func() {
+		r := httptest.NewRequest("GET", "/api/events?timestamp_from=2026-04-01", nil)
+
+		_, err := mapconv.QueryParamsToOpts(r)
+
+		Expect(err).To(MatchError(ContainSubstring("timestamp_from")))
+	})
 })
 
 var _ = Describe("DomainEventToResponse", func() {
