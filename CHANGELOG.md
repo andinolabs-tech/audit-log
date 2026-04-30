@@ -1,3 +1,21 @@
+## [unreleased]
+
+### 🚀 Features
+
+- Add search filter
+
+### 📚 Documentation
+
+- Add date range filter design spec
+
+### ⚙️ Miscellaneous Tasks
+
+- Make the project work with podman
+## [0.2.1] - 2026-04-29
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.2.1
 ## [0.2.0] - 2026-04-29
 
 ### 🚀 Features
