@@ -1,4 +1,4 @@
-## [unreleased]
+## [0.3.0] - 2026-04-30
 
 ### 🚀 Features
 
@@ -11,6 +11,7 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Make the project work with podman
+- Update changelog for v0.3.0
 ## [0.2.1] - 2026-04-29
 
 ### ⚙️ Miscellaneous Tasks
