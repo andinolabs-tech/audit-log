@@ -1,3 +1,8 @@
+## [0.3.3] - 2026-04-30
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.3.3
 ## [0.3.2] - 2026-04-30
 
 ### ⚙️ Miscellaneous Tasks
