@@ -7,18 +7,22 @@
     "dev": "vite",
     "build": "tsc && vite build && touch ../internal/web/dist/.gitkeep",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev:mfe": "vite build --config vite.audit-log.config.ts --watch",
+    "preview:mfe": "vite preview --config vite.audit-log.config.ts --port 3007",
+    "build:mfe": "vite build --config vite.audit-log.config.ts"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.3"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
+    "@originjs/vite-plugin-federation": "^1.3.6",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.5.0",
     "jsdom": "^29.1.0",

@@ -5,6 +5,7 @@ import { resolveDateRange } from '../dateRange'
 import type { DateRangeValue } from '../dateRange'
 import { SEARCH_KEYS, parseSearchQuery } from '../searchQuery'
 import type { AuditEvent, NamespacesResponse, QueryEventsResponse } from '../types/event'
+import { getAuditLogApiBase } from '../lib/config'
 
 export default function QueryPage() {
   const [namespaces, setNamespaces] = useState<string[]>([])
@@ -22,7 +23,7 @@ export default function QueryPage() {
   const namespaceMenuRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    fetch('/api/namespaces')
+    fetch(`${getAuditLogApiBase()}/api/namespaces`)
       .then((response) => {
         if (!response.ok) throw new Error('Unable to load namespaces')
         return response.json() as Promise<NamespacesResponse>
@@ -53,7 +54,7 @@ export default function QueryPage() {
     searchParams.forEach(([key, value]) => params.append(key, value))
     params.set('page_size', String(pageSize))
     if (pageToken) params.set('page_token', pageToken)
-    return `/api/events?${params.toString()}`
+    return `${getAuditLogApiBase()}/api/events?${params.toString()}`
   }
 
   const search = async (append = false, pageToken?: string) => {
