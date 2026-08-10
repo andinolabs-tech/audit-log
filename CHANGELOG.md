@@ -1,3 +1,14 @@
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- Trigger pipeline
+- Move pipeline back to github actions
+## [0.3.8] - 2026-04-30
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.3.8
 ## [0.3.7] - 2026-04-30
 
 ### ⚙️ Miscellaneous Tasks
