@@ -3,3 +3,5 @@ bin
 *.out
 coverage.out
 .arch-go
+web/node_modules
+internal/web/dist
