@@ -1,9 +1,15 @@
 ## [unreleased]
 
+### 🐛 Bug Fixes
+
+- Restore docker build and publish
+## [0.4.0] - 2026-08-10
+
 ### ⚙️ Miscellaneous Tasks
 
 - Trigger pipeline
 - Move pipeline back to github actions
+- Update changelog for v0.4.0
 ## [0.3.8] - 2026-04-30
 
 ### ⚙️ Miscellaneous Tasks
