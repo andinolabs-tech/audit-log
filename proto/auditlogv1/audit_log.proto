@@ -65,6 +65,8 @@ message QueryEventsRequest {
   string page_token = 13;
   int32 page_size = 14;
   optional string namespace = 15;
+  google.protobuf.Timestamp timestamp_from = 16;
+  google.protobuf.Timestamp timestamp_to = 17;
 }
 
 message QueryEventsResponse {

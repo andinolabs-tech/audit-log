@@ -98,10 +98,51 @@ var _ = Describe("EventRepository", func() {
 		firstPage, err := repo.Query(ctx, usecases.QueryEventsOptions{PageSize: 2})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(firstPage).To(HaveLen(2))
+		Expect(firstPage[0].ID).To(Equal(ids[2]))
+		Expect(firstPage[1].ID).To(Equal(ids[1]))
 		tok := firstPage[1].ID
 		secondPage, err := repo.Query(ctx, usecases.QueryEventsOptions{PageToken: &tok, PageSize: 10})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(secondPage).To(HaveLen(1))
+		Expect(secondPage[0].ID).To(Equal(ids[0]))
+	})
+
+	It("returns events ordered by date descending", func() {
+		base := time.Date(2026, 4, 10, 12, 0, 0, 0, time.UTC)
+		events := []struct {
+			id        string
+			entityID  string
+			timestamp time.Time
+		}{
+			{"018f0000-0000-7000-8000-000000000021", "oldest", base},
+			{"018f0000-0000-7000-8000-000000000022", "middle", base.Add(time.Hour)},
+			{"018f0000-0000-7000-8000-000000000023", "newest", base.Add(2 * time.Hour)},
+		}
+
+		for _, ev := range events {
+			Expect(repo.Save(ctx, &domain.AuditEvent{
+				ID:          uuid.MustParse(ev.id),
+				TenantID:    "t1",
+				Namespace:   "ns1",
+				ActorID:     "a1",
+				ActorType:   domain.ActorTypeUser,
+				EntityType:  "E",
+				EntityID:    domain.ID(ev.entityID),
+				Action:      domain.ActionCreated,
+				Outcome:     domain.OutcomeSuccess,
+				ServiceName: "svc",
+				Timestamp:   ev.timestamp,
+			})).To(Succeed())
+		}
+
+		results, err := repo.Query(ctx, usecases.QueryEventsOptions{PageSize: 10})
+
+		Expect(err).NotTo(HaveOccurred())
+		entityIDs := make([]string, 0, len(results))
+		for _, result := range results {
+			entityIDs = append(entityIDs, string(result.EntityID))
+		}
+		Expect(entityIDs).To(Equal([]string{"newest", "middle", "oldest"}))
 	})
 
 	It("filters events by multiple namespaces using IN", func() {

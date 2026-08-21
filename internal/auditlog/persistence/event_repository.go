@@ -152,10 +152,13 @@ func (r *EventRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.A
 }
 
 func (r *EventRepository) Query(ctx context.Context, opts usecases.QueryEventsOptions) ([]*domain.AuditEvent, error) {
-	q := r.db.WithContext(ctx).Model(&internal.AuditEventRecord{}).Order("id ASC")
+	// Newest first. Ids are UUIDv7, minted alongside `timestamp` when the event is
+	// recorded, so ordering by id descending is ordering by date descending — and it
+	// keeps the cursor a single unique column, which a non-unique `timestamp` is not.
+	q := r.db.WithContext(ctx).Model(&internal.AuditEventRecord{}).Order("id DESC")
 	q = applyQueryFilters(q, opts)
 	if opts.PageToken != nil {
-		q = q.Where("id > ?", *opts.PageToken)
+		q = q.Where("id < ?", *opts.PageToken)
 	}
 	if opts.PageSize > 0 {
 		q = q.Limit(opts.PageSize)

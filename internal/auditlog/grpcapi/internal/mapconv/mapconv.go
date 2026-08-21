@@ -107,6 +107,20 @@ func QueryEventsRequestToOpts(req *auditlogv1.QueryEventsRequest) (usecases.Quer
 		v := req.GetTraceId()
 		opts.TraceID = &v
 	}
+	if t := req.GetTimestampFrom(); t != nil {
+		if err := t.CheckValid(); err != nil {
+			return usecases.QueryEventsOptions{}, err
+		}
+		tt := t.AsTime().UTC()
+		opts.TimestampFrom = &tt
+	}
+	if t := req.GetTimestampTo(); t != nil {
+		if err := t.CheckValid(); err != nil {
+			return usecases.QueryEventsOptions{}, err
+		}
+		tt := t.AsTime().UTC()
+		opts.TimestampTo = &tt
+	}
 	if req.GetPageToken() != "" {
 		tok, err := uuid.Parse(req.GetPageToken())
 		if err != nil {

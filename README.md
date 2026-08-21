@@ -70,7 +70,7 @@ Package: `auditlog.v1`. RPCs:
 
 - `WriteEvent` — append an audit event (tenant, actor, entity, action, before/after payloads, metadata, tags, etc.).
 - `WriteCompensation` — record a compensating event linked to a prior event id.
-- `QueryEvents` — filter by optional dimensions and paginate with `page_token` / `page_size`.
+- `QueryEvents` — filter by optional dimensions, restrict to a timestamp range with `timestamp_from` / `timestamp_to` (inclusive `google.protobuf.Timestamp` bounds), and paginate with `page_token` / `page_size`. Events come back newest first.
 - `GetEvent` — fetch a single event by id.
 
 Protobuf definitions: `proto/auditlogv1/audit_log.proto`. Regenerate Go stubs with `just proto` (requires `protoc` and paths as in the `justfile`).
