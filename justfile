@@ -110,7 +110,7 @@ release version:
     echo "✅ Release {{version}} complete!"
 
 proto:
-	protoc -I=proto/auditlogv1 -I="$(shell brew --prefix protobuf)/include" \
+	protoc -I=proto/auditlogv1 -I="$(brew --prefix protobuf)/include" \
 		--go_out=. --go_opt=module=audit-log \
 		--go-grpc_out=. --go-grpc_opt=module=audit-log \
 		proto/auditlogv1/audit_log.proto
