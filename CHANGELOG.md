@@ -1,8 +1,21 @@
 ## [unreleased]
 
+### 🚀 Features
+
+- Filter events by date range over gRPC and return newest first
+
+### ⚙️ Miscellaneous Tasks
+
+- Use bash command substitution in the proto recipe
+## [0.4.1] - 2026-08-10
+
 ### 🐛 Bug Fixes
 
 - Restore docker build and publish
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog for v0.4.1
 ## [0.4.0] - 2026-08-10
 
 ### ⚙️ Miscellaneous Tasks
