@@ -14,7 +14,7 @@ func TestFunctional(t *testing.T) {
 
 	addr := os.Getenv("AUDIT_LOG_FUNCTIONAL_GRPC_ADDR")
 	if addr == "" {
-		t.Skip("skipping functional suite: AUDIT_LOG_FUNCTIONAL_GRPC_ADDR not set (run `just functional`)")
+		t.Skip("skipping functional suite: AUDIT_LOG_FUNCTIONAL_GRPC_ADDR not set (run `just functional-api`)")
 	}
 	testGRPCAddr = addr
 

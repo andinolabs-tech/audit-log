@@ -7,6 +7,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -28,14 +29,20 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 		lastTenant = ""
 		lastQueryCount = 0
 		lastQueryEvents = nil
-		dialCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		defer cancel()
-		conn, err := grpc.DialContext(dialCtx, testGRPCAddr,
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithBlock(),
-		)
+		conn, err := grpc.NewClient(testGRPCAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			return ctx, err
+		}
+		// NewClient connects lazily. Block until the connection is ready so a server that
+		// never came up fails here instead of surfacing as confusing per-step RPC errors.
+		dialCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		conn.Connect()
+		for state := conn.GetState(); state != connectivity.Ready; state = conn.GetState() {
+			if !conn.WaitForStateChange(dialCtx, state) {
+				_ = conn.Close()
+				return ctx, fmt.Errorf("timed out connecting to %s: %w", testGRPCAddr, dialCtx.Err())
+			}
 		}
 		grpcConn = conn
 		apiClient = auditlogv1.NewAuditLogClient(conn)

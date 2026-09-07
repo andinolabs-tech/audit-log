@@ -1,0 +1,19 @@
+version: "2"
+
+run:
+  timeout: 10m
+
+linters:
+  default: standard
+  exclusions:
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+
+# golangci-lint v2 runs formatters from this section, not from `linters`.
+# Without it, unformatted code passes `just lint` unnoticed (PN-528).
+formatters:
+  enable:
+    - gofmt
