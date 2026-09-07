@@ -4,10 +4,10 @@ default:
 	@just --list
 
 web-build:
-	cd web && npm ci && npm run build
+	cd web && pnpm install --frozen-lockfile && pnpm run build
 
 web-dev:
-	cd web && npm run dev
+	cd web && pnpm run dev
 
 build: web-build
 	go build -o bin/audit-log ./cmd/server
@@ -30,7 +30,7 @@ dev:
 	trap 'kill 0; docker compose down' EXIT INT TERM
 	docker compose up -d --wait
 	go run ./cmd/server &
-	npm --prefix web run dev
+	pnpm --dir web run dev
 	wait
 
 wire:

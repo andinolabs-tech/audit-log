@@ -28,11 +28,16 @@ jobs:
 
       # `just build` (pulled in by `just functional`) runs `just web-build`,
       # which builds the SPA embedded via internal/web/dist.
+      # pnpm must be on PATH before setup-node so its store can be cached.
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: web/package-lock.json
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
 
       - uses: extractions/setup-just@v4
         with:
