@@ -1,7 +1,7 @@
 FROM node:22-alpine AS web
 WORKDIR /src/web
 RUN corepack enable
-COPY web/package.json web/pnpm-lock.yaml ./
+COPY web/package.json web/pnpm-lock.yaml web/.npmrc ./
 RUN pnpm install --frozen-lockfile
 COPY web/ ./
 # vite writes to ../internal/web/dist, embedded by the Go build below.
